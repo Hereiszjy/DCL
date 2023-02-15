@@ -2,7 +2,7 @@ from __future__ import division
 import torch
 import math
 import random
-from PIL import Image, ImageOps, ImageEnhance, PILLOW_VERSION
+from PIL import Image, ImageOps, ImageEnhance, __version__
 try:
     import accimage
 except ImportError:
@@ -187,7 +187,7 @@ def resize(img, size, interpolation=Image.BILINEAR):
     """
     if not _is_pil_image(img):
         raise TypeError('img should be PIL Image. Got {}'.format(type(img)))
-    if not (isinstance(size, int) or (isinstance(size, collections.Iterable) and len(size) == 2)):
+    if not (isinstance(size, int) or (isinstance(size, collections.abc.Iterable) and len(size) == 2)):
         raise TypeError('Got inappropriate size arg: {}'.format(size))
 
     if isinstance(size, int):
@@ -719,7 +719,7 @@ def affine(img, angle, translate, scale, shear, resample=0, fillcolor=None):
     output_size = img.size
     center = (img.size[0] * 0.5 + 0.5, img.size[1] * 0.5 + 0.5)
     matrix = _get_inverse_affine_matrix(center, angle, translate, scale, shear)
-    kwargs = {"fillcolor": fillcolor} if PILLOW_VERSION[0] == '5' else {}
+    kwargs = {"fillcolor": fillcolor} if __version__[0] == '5' else {}
     return img.transform(output_size, Image.AFFINE, matrix, resample, **kwargs)
 
 

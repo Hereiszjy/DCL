@@ -82,6 +82,11 @@ class LoadConfig(object):
             self.rawdata_root = './dataset/aircraft/data'
             self.anno_root = './dataset/aircraft/anno'
             self.numcls = 100
+        elif args.dataset == 'Tide27':
+            self.dataset = args.dataset
+            self.rawdata_root = '/data/disk3/cv2022/pollux/data/11_HPC-US-Sku/jam_exp_tide_0215/crops'
+            self.anno_root = '/home/jiayu/DCL/datasets/tide27'
+            self.numcls = 27            
         else:
             raise Exception('dataset not defined ???')
 

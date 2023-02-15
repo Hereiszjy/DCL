@@ -86,7 +86,7 @@ if __name__ == '__main__':
 
     model = MainModel(Config)
     model_dict=model.state_dict()
-    pretrained_dict=torch.load(resume)
+    pretrained_dict=torch.load(args.resume)
     pretrained_dict = {k[7:]: v for k, v in pretrained_dict.items() if k[7:] in model_dict}
     model_dict.update(pretrained_dict)
     model.load_state_dict(model_dict)
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                                                'top1_val': sub_val[0], 'top2_val': sub_val[1], 'top3_val': sub_val[2],
                                                'label': sub_label}
     if args.acc_report:
-        torch.save(result_gather, 'result_gather_%s'%resume.split('/')[-1][:-4]+ '.pt')
+        torch.save(result_gather, 'result_gather_%s'%args.resume.split('/')[-1][:-4]+ '.pt')
 
     count_bar.close()
 
@@ -139,7 +139,7 @@ if __name__ == '__main__':
 
         cls_top1, cls_top3, cls_count = cls_base_acc(result_gather)
 
-        acc_report_io = open('acc_report_%s_%s.json'%(args.save_suffix, resume.split('/')[-1]), 'w')
+        acc_report_io = open('acc_report_%s_%s.json'%(args.save_suffix, args.resume.split('/')[-1]), 'w')
         json.dump({'val_acc1':val_acc1,
                    'val_acc2':val_acc2,
                    'val_acc3':val_acc3,

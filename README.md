@@ -88,7 +88,7 @@ Run `train.py` to train DCL.
 For training CUB / STCAR / AIR from scratch
 
 ```shell
-python train.py --data CUB --epoch 360 --backbone resnet50 \
+python train.py --data Tide27 --epoch 360 --backbone resnet50 \
                     --tb 16 --tnw 16 --vb 512 --vnw 16 \
                     --lr 0.0008 --lr_step 60 \
                     --cls_lr_ratio 10 --start_epoch 0 \

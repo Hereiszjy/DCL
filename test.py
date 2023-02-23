@@ -27,49 +27,34 @@ from utils.test_tool import set_text, save_multi_img, cls_base_acc
 import pdb
 
 os.environ['CUDA_DEVICE_ORDRE'] = 'PCI_BUS_ID'
-os.environ['CUDA_VISIBLE_DEVICES'] = '0,1,2,3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '2,3'
 
 def parse_args():
     parser = argparse.ArgumentParser(description='dcl parameters')
-    parser.add_argument('--data', dest='dataset',
-                        default='CUB', type=str)
-    parser.add_argument('--backbone', dest='backbone',
-                        default='resnet50', type=str)
-    parser.add_argument('--b', dest='batch_size',
-                        default=16, type=int)
-    parser.add_argument('--nw', dest='num_workers',
-                        default=16, type=int)
-    parser.add_argument('--ver', dest='version',
-                        default='val', type=str)
-    parser.add_argument('--save', dest='resume',
-                        default=None, type=str)
-    parser.add_argument('--size', dest='resize_resolution',
-                        default=512, type=int)
-    parser.add_argument('--crop', dest='crop_resolution',
-                        default=448, type=int)
-    parser.add_argument('--ss', dest='save_suffix',
-                        default=None, type=str)
-    parser.add_argument('--acc_report', dest='acc_report',
-                        action='store_true')
-    parser.add_argument('--swap_num', default=[7, 7],
-                    nargs=2, metavar=('swap1', 'swap2'),
-                    type=int, help='specify a range')
+    parser.add_argument('--data', dest='dataset',default='CUB', type=str)
+    parser.add_argument('--backbone', dest='backbone',default='resnet50', type=str)
+    parser.add_argument('--b', dest='batch_size',default=16, type=int)
+    parser.add_argument('--nw', dest='num_workers',default=16, type=int)
+    parser.add_argument('--ver', dest='version',default='val', type=str)
+    parser.add_argument('--save', dest='resume',default=None, type=str)
+    parser.add_argument('--size', dest='resize_resolution',default=512, type=int)
+    parser.add_argument('--crop', dest='crop_resolution',default=448, type=int)
+    parser.add_argument('--ss', dest='save_suffix',default=None, type=str)
+    parser.add_argument('--acc_report', dest='acc_report',action='store_true')
+    parser.add_argument('--swap_num', default=[7, 7],nargs=2, metavar=('swap1', 'swap2'),type=int, help='specify a range')
     args = parser.parse_args()
     return args
 
 if __name__ == '__main__':
     args = parse_args()
     print(args)
-    if args.submit:
-        args.version = 'test'
-        if args.save_suffix == '':
-            raise Exception('**** miss --ss save suffix is needed. ')
 
+    resume = "/home/jiayu/DCL/net_model/training_descibe_22119_HPC_US_1973/weights_12_3847_0.9296_0.9936.pth"
     Config = LoadConfig(args, args.version)
     transformers = load_data_transformers(args.resize_resolution, args.crop_resolution, args.swap_num)
     data_set = dataset(Config,\
                        anno=Config.val_anno if args.version == 'val' else Config.test_anno ,\
-                       unswap=transformers["None"],\
+                    #    unswap=transformers["None"],\
                        swap=transformers["None"],\
                        totensor=transformers['test_totensor'],\
                        test=True)
@@ -86,7 +71,7 @@ if __name__ == '__main__':
 
     model = MainModel(Config)
     model_dict=model.state_dict()
-    pretrained_dict=torch.load(args.resume)
+    pretrained_dict=torch.load(resume)
     pretrained_dict = {k[7:]: v for k, v in pretrained_dict.items() if k[7:] in model_dict}
     model_dict.update(pretrained_dict)
     model.load_state_dict(model_dict)
@@ -108,7 +93,8 @@ if __name__ == '__main__':
             labels = Variable(torch.from_numpy(np.array(labels)).long().cuda())
 
             outputs = model(inputs)
-            outputs_pred = outputs[0] + outputs[1][:,0:Config.numcls] + outputs[1][:,Config.numcls:2*Config.numcls]
+            # outputs_pred = outputs[0] + outputs[1][:,0:Config.numcls] + outputs[1][:,Config.numcls:2*Config.numcls]
+            outputs_pred = outputs[0]
 
             top3_val, top3_pos = torch.topk(outputs_pred, 3)
 
@@ -120,13 +106,13 @@ if __name__ == '__main__':
                 batch_corrects3 = torch.sum((top3_pos[:, 2] == labels)).data.item()
                 val_corrects3 += (batch_corrects3 + batch_corrects2 + batch_corrects1)
 
-            if args.acc_report:
-                for sub_name, sub_cat, sub_val, sub_label in zip(img_name, top3_pos.tolist(), top3_val.tolist(), labels.tolist()):
-                    result_gather[sub_name] = {'top1_cat': sub_cat[0], 'top2_cat': sub_cat[1], 'top3_cat': sub_cat[2],
-                                               'top1_val': sub_val[0], 'top2_val': sub_val[1], 'top3_val': sub_val[2],
-                                               'label': sub_label}
+            # if args.acc_report:
+            #     for sub_name, sub_cat, sub_val, sub_label in zip(img_name, top3_pos.tolist(), top3_val.tolist(), labels.tolist()):
+            #         result_gather[sub_name] = {'top1_cat': sub_cat[0], 'top2_cat': sub_cat[1], 'top3_cat': sub_cat[2],
+            #                                    'top1_val': sub_val[0], 'top2_val': sub_val[1], 'top3_val': sub_val[2],
+            #                                    'label': sub_label}
     if args.acc_report:
-        torch.save(result_gather, 'result_gather_%s'%args.resume.split('/')[-1][:-4]+ '.pt')
+        torch.save(result_gather, 'result_gather_%s'%resume.split('/')[-1][:-4]+ '.pt')
 
     count_bar.close()
 
@@ -139,7 +125,7 @@ if __name__ == '__main__':
 
         cls_top1, cls_top3, cls_count = cls_base_acc(result_gather)
 
-        acc_report_io = open('acc_report_%s_%s.json'%(args.save_suffix, args.resume.split('/')[-1]), 'w')
+        acc_report_io = open('acc_report_%s_%s.json'%(args.save_suffix, resume.split('/')[-1]), 'w')
         json.dump({'val_acc1':val_acc1,
                    'val_acc2':val_acc2,
                    'val_acc3':val_acc3,

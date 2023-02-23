@@ -88,12 +88,12 @@ Run `train.py` to train DCL.
 For training CUB / STCAR / AIR from scratch
 
 ```shell
-python train.py --data Tide27 --epoch 360 --backbone resnet50 \
-                    --tb 16 --tnw 16 --vb 512 --vnw 16 \
+python train.py --data HPC_US_1973 --epoch 150 --backbone resnet50 \
+                    --tb 64 --tnw 16 --vb 512 --vnw 32 \
                     --lr 0.0008 --lr_step 60 \
-                    --cls_lr_ratio 10 --start_epoch 0 \
+                    --cls_lr_ratio 10 --start_epoch 13 \
                     --detail training_descibe --size 512 \
-                    --crop 448 --cls_mul --swap_num 7 7
+                    --crop 448 --cls_mul --swap_num 7 7 --save "/home/jiayu/DCL/net_model/training_descibe_22119_HPC_US_1973/weights_13_1251_0.9306_0.9938.pth"
 ```
 
 For training CUB / STCAR / AIR from trained checkpoint

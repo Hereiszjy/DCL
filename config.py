@@ -86,7 +86,12 @@ class LoadConfig(object):
             self.dataset = args.dataset
             self.rawdata_root = '/data/disk3/cv2022/pollux/data/11_HPC-US-Sku/jam_exp_tide_0215/crops'
             self.anno_root = '/home/jiayu/DCL/datasets/tide27'
-            self.numcls = 27            
+            self.numcls = 27
+        elif args.dataset == "HPC_US_1973":
+            self.dataset = args.dataset
+            self.rawdata_root = '/data/disk3/cv2022/data/hpc_1973'
+            self.anno_root = '/home/jiayu/DCL/datasets/HPC_US_1973'
+            self.numcls = 1973            
         else:
             raise Exception('dataset not defined ???')
 
@@ -118,7 +123,7 @@ class LoadConfig(object):
             os.mkdir(self.save_dir)
         self.backbone = args.backbone
 
-        self.use_dcl = True
+        self.use_dcl = False
         self.use_backbone = False if self.use_dcl else True
         self.use_Asoftmax = False
         self.use_focal_loss = False

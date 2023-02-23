@@ -3,31 +3,23 @@ from tqdm import tqdm, trange
 import codecs
 import os
 import glob
+import pandas as pd
 from pathlib import Path
-# def get_label_map(label_path):
-#     label_map = dict()
-#     with codecs.open(label_path, "r", encoding="utf-8") as f:
-#         for line in f:
-#             if not line:
-#                 break
-#             tokens = line.strip().split(",")
-#             label_map[int(tokens[0])] = int(tokens[1])
-#     return label_map
 
 if __name__ == '__main__':
-    crop_dir = '/data/disk3/cv2022/pollux/data/11_HPC-US-Sku/jam_exp_tide_0215/crops/'
-    metadata_dir = 'datasets/tide27'
+    crop_dir = '/data/disk3/cv2022/data/hpc_1973/'
+    metadata_dir = '../datasets/HPC_US_1973'
+    skulist = pd.read_csv("1973skus.csv")
+    SKUID = skulist["ProductId"].unique().tolist()
+    SKUID.sort()
 
-    SKUID = [1069705, 1069706, 1069709, 1069787, 1069812, 1069856, 1069933, 1069961, 1070017, 1070079, 
-    1072412, 1090300, 1090392, 1107473, 1107474, 1107476, 1107477, 1107478, 1107480, 1107487, 1107572, 
-    1107605, 1114091, 1114218, 1123596, 1127146, 1147667]
     label_map = dict()
     for i in range(len(SKUID)):
         label_map[SKUID[i]] = i
 
     dataset_dir = Path(metadata_dir)
-    train_txt_file = dataset_dir / 'train.txt'
-    val_txt_file = dataset_dir / 'val.txt'
+    train_txt_file = dataset_dir / 'ct_train.txt'
+    val_txt_file = dataset_dir / 'ct_val.txt'
     train_anno = []
     val_anno = []
 

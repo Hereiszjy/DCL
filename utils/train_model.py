@@ -46,9 +46,9 @@ def train(Config,
     train_epoch_step = data_loader['train'].__len__()
     train_loss_recorder = LossRecord(train_batch_size)
 
-    if savepoint > train_epoch_step:
-        savepoint = 1*train_epoch_step
-        checkpoint = savepoint
+    # if savepoint > train_epoch_step:
+    savepoint = 1*train_epoch_step
+    checkpoint = savepoint
 
     date_suffix = dt()
     log_file = open(os.path.join(Config.log_folder, 'formal_log_r50_dcl_%s_%s.log'%(str(data_size), date_suffix)), 'a')
